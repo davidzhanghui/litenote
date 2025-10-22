@@ -18,9 +18,8 @@ echo ""
 echo "✅ 依赖安装完成"
 echo ""
 echo "🔧 启动后端服务器 (端口 30001)..."
-cd server && npm start &
+(cd server && npm start) &
 SERVER_PID=$!
-cd ..
 
 sleep 2
 
