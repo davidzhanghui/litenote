@@ -17,21 +17,21 @@ fi
 echo ""
 echo "✅ 依赖安装完成"
 echo ""
-echo "🔧 启动后端服务器 (端口 3001)..."
+echo "🔧 启动后端服务器 (端口 30001)..."
 cd server && npm start &
 SERVER_PID=$!
 cd ..
 
 sleep 2
 
-echo "🔧 启动前端开发服务器 (端口 3000)..."
+echo "🔧 启动前端开发服务器 (端口 3001)..."
 npm run dev &
 FRONTEND_PID=$!
 
 echo ""
 echo "✅ 服务已启动！"
 echo ""
-echo "📝 访问地址: http://localhost:3000"
+echo "📝 访问地址: http://localhost:3001"
 echo ""
 echo "按 Ctrl+C 停止服务"
 
