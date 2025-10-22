@@ -163,14 +163,33 @@ onMounted(() => {
 
 .file-tree-panel {
   width: 320px;
-  background-color: white;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
   display: flex;
   flex-direction: column;
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 2px 0 16px rgba(0, 0, 0, 0.08);
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, 
+      #667eea 0%, 
+      #764ba2 25%, 
+      #f093fb 50%, 
+      #4facfe 75%, 
+      #00f2fe 100%
+    );
+  }
 
   .panel-header {
-    padding: 16px 20px;
-    border-bottom: 1px solid #e4e7ed;
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+    border-bottom: 2px solid transparent;
+    border-image: linear-gradient(90deg, #667eea, #764ba2) 1;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -178,8 +197,32 @@ onMounted(() => {
     h3 {
       margin: 0;
       font-size: 16px;
-      font-weight: 600;
-      color: #303133;
+      font-weight: 700;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      &::before {
+        content: '📁';
+        font-size: 20px;
+        -webkit-text-fill-color: initial;
+      }
+    }
+
+    :deep(.el-button) {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      color: white;
+      transition: all 0.3s;
+
+      &:hover {
+        transform: rotate(180deg) scale(1.1);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      }
     }
   }
 
@@ -187,6 +230,24 @@ onMounted(() => {
     flex: 1;
     overflow-y: auto;
     padding: 12px 0;
+    
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 3px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+      border-radius: 3px;
+      
+      &:hover {
+        background: linear-gradient(180deg, #764ba2 0%, #667eea 100%);
+      }
+    }
   }
 }
 
