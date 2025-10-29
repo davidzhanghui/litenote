@@ -6,11 +6,12 @@
 
 - 📁 树形结构显示目录和文件
 - ✏️ 实时 Markdown 编辑和预览
+- 💻 脚本文件编辑支持（Python、JavaScript、Java、C++、Go、Rust、Ruby、PHP、Shell 等）
 - 💾 文件保存功能
-- 🎨 代码高亮
+- 🎨 代码高亮和文件类型识别
 - 📱 响应式布局
 - 🔄 实时刷新文件树
-- 👀 三种视图模式（编辑/预览/双栏）
+- 👀 三种视图模式（编辑/预览/双栏）- 仅限 Markdown 文件
 
 ## 快速开始
 
@@ -85,7 +86,8 @@ docs/
 ├── src/                      # 前端源码
 │   ├── components/          # Vue 组件
 │   │   ├── FileTree.vue     # 文件树组件
-│   │   └── MarkdownEditor.vue  # Markdown 编辑器
+│   │   ├── MarkdownEditor.vue  # Markdown 编辑器
+│   │   └── CodeEditor.vue   # 代码编辑器（支持多种脚本文件）
 │   ├── api/                 # API 接口
 │   │   └── files.js         # 文件操作 API
 │   ├── styles/              # 样式文件
@@ -95,8 +97,11 @@ docs/
 ├── server/                  # 后端服务
 │   ├── server.js            # Express 服务器
 │   └── package.json         # 后端依赖配置
-├── markdowns/               # Markdown 文件存储目录
+├── markdowns/               # 文件存储目录（支持 Markdown 和脚本文件）
 │   ├── 示例文档.md
+│   ├── example.py           # Python 示例
+│   ├── example.js           # JavaScript 示例
+│   ├── example.sh           # Shell 示例
 │   ├── 学习笔记/
 │   └── 项目文档/
 ├── package.json             # 前端依赖配置
@@ -139,11 +144,34 @@ docs/
 
 ## 使用说明
 
+### 基本操作
 1. **查看文件**: 点击左侧文件树中的文件名
-2. **编辑内容**: 在右侧编辑器中修改 Markdown 内容
-3. **切换视图**: 使用工具栏按钮切换编辑/预览/双栏模式
-4. **保存文件**: 点击工具栏的"保存"按钮
-5. **刷新树**: 点击左上角刷新按钮重新加载文件树
+2. **编辑内容**: 在右侧编辑器中修改文件内容
+3. **保存文件**: 点击工具栏的"保存"按钮
+4. **刷新树**: 点击左上角刷新按钮重新加载文件树
+
+### Markdown 文件
+- 支持三种视图模式：编辑、预览、双栏
+- 使用工具栏按钮切换视图模式
+- 支持实时预览和代码高亮
+
+### 脚本文件
+- 支持编辑以下类型的脚本文件：
+  - **Python** (.py)
+  - **JavaScript/JSX** (.js, .jsx)
+  - **TypeScript/TSX** (.ts, .tsx)
+  - **Java** (.java)
+  - **C/C++** (.c, .cpp, .h)
+  - **Go** (.go)
+  - **Rust** (.rs)
+  - **Ruby** (.rb)
+  - **PHP** (.php)
+  - **Shell** (.sh, .bash, .zsh, .fish)
+  - **Web** (.html, .css, .scss, .less, .xml)
+  - **Data** (.json, .yaml, .yml, .sql)
+  - **其他** (.txt, .md)
+- 文件类型会在工具栏显示
+- 支持保存修改
 
 ## 开发指南
 

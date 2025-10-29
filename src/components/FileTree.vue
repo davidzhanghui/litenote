@@ -67,10 +67,23 @@ const getIconClass = (data) => {
   // 根据文件扩展名返回不同的类
   const fileName = data.name.toLowerCase()
   if (fileName.endsWith('.md')) return 'icon-markdown'
-  if (fileName.endsWith('.js')) return 'icon-javascript'
+  if (fileName.endsWith('.js') || fileName.endsWith('.jsx')) return 'icon-javascript'
+  if (fileName.endsWith('.ts') || fileName.endsWith('.tsx')) return 'icon-typescript'
   if (fileName.endsWith('.vue')) return 'icon-vue'
   if (fileName.endsWith('.json')) return 'icon-json'
-  if (fileName.endsWith('.css') || fileName.endsWith('.scss')) return 'icon-style'
+  if (fileName.endsWith('.css') || fileName.endsWith('.scss') || fileName.endsWith('.less')) return 'icon-style'
+  if (fileName.endsWith('.py')) return 'icon-python'
+  if (fileName.endsWith('.java')) return 'icon-java'
+  if (fileName.endsWith('.cpp') || fileName.endsWith('.cc') || fileName.endsWith('.c') || fileName.endsWith('.h')) return 'icon-cpp'
+  if (fileName.endsWith('.go')) return 'icon-go'
+  if (fileName.endsWith('.rs')) return 'icon-rust'
+  if (fileName.endsWith('.rb')) return 'icon-ruby'
+  if (fileName.endsWith('.php')) return 'icon-php'
+  if (fileName.endsWith('.sh') || fileName.endsWith('.bash') || fileName.endsWith('.zsh') || fileName.endsWith('.fish')) return 'icon-shell'
+  if (fileName.endsWith('.html') || fileName.endsWith('.xml')) return 'icon-html'
+  if (fileName.endsWith('.yaml') || fileName.endsWith('.yml')) return 'icon-yaml'
+  if (fileName.endsWith('.sql')) return 'icon-sql'
+  if (fileName.endsWith('.txt')) return 'icon-text'
   
   return 'icon-file'
 }
@@ -195,6 +208,84 @@ const handleNodeClick = (data) => {
   .icon-style {
     color: #ec4899;
     filter: drop-shadow(0 2px 4px rgba(236, 72, 153, 0.2));
+  }
+
+  // Python 文件图标
+  .icon-python {
+    color: #3776ab;
+    filter: drop-shadow(0 2px 4px rgba(55, 118, 171, 0.2));
+  }
+
+  // TypeScript 文件图标
+  .icon-typescript {
+    color: #3178c6;
+    filter: drop-shadow(0 2px 4px rgba(49, 120, 198, 0.2));
+  }
+
+  // Java 文件图标
+  .icon-java {
+    color: #f89820;
+    filter: drop-shadow(0 2px 4px rgba(248, 152, 32, 0.2));
+  }
+
+  // C++ 文件图标
+  .icon-cpp {
+    color: #00599c;
+    filter: drop-shadow(0 2px 4px rgba(0, 89, 156, 0.2));
+  }
+
+  // Go 文件图标
+  .icon-go {
+    color: #00add8;
+    filter: drop-shadow(0 2px 4px rgba(0, 173, 216, 0.2));
+  }
+
+  // Rust 文件图标
+  .icon-rust {
+    color: #ce422b;
+    filter: drop-shadow(0 2px 4px rgba(206, 66, 43, 0.2));
+  }
+
+  // Ruby 文件图标
+  .icon-ruby {
+    color: #cc342d;
+    filter: drop-shadow(0 2px 4px rgba(204, 52, 45, 0.2));
+  }
+
+  // PHP 文件图标
+  .icon-php {
+    color: #777bb4;
+    filter: drop-shadow(0 2px 4px rgba(119, 123, 180, 0.2));
+  }
+
+  // Shell 文件图标
+  .icon-shell {
+    color: #4ee34e;
+    filter: drop-shadow(0 2px 4px rgba(78, 227, 78, 0.2));
+  }
+
+  // HTML 文件图标
+  .icon-html {
+    color: #e34c26;
+    filter: drop-shadow(0 2px 4px rgba(227, 76, 38, 0.2));
+  }
+
+  // YAML 文件图标
+  .icon-yaml {
+    color: #cb171e;
+    filter: drop-shadow(0 2px 4px rgba(203, 23, 30, 0.2));
+  }
+
+  // SQL 文件图标
+  .icon-sql {
+    color: #336791;
+    filter: drop-shadow(0 2px 4px rgba(51, 103, 145, 0.2));
+  }
+
+  // 文本文件图标
+  .icon-text {
+    color: #9ca3af;
+    filter: drop-shadow(0 2px 4px rgba(156, 163, 175, 0.2));
   }
 
   // 默认文件图标

@@ -35,12 +35,28 @@ async function readDirectoryTree(dirPath, relativePath = '') {
           type: 'directory',
           children
         })
-      } else if (entry.isFile() && entry.name.endsWith('.md')) {
-        items.push({
-          name: entry.name,
-          path: relPath,
-          type: 'file'
-        })
+      } else if (entry.isFile()) {
+        // 支持多种文件类型
+        const supportedExtensions = [
+          '.md', '.txt',
+          '.js', '.jsx', '.ts', '.tsx', '.vue',
+          '.py', '.java', '.cpp', '.c', '.h', '.go', '.rs', '.rb', '.php',
+          '.sh', '.bash', '.zsh', '.fish',
+          '.json', '.yaml', '.yml', '.xml', '.html', '.css', '.scss', '.less',
+          '.sql', '.sql'
+        ]
+        
+        const isSupportedFile = supportedExtensions.some(ext => 
+          entry.name.toLowerCase().endsWith(ext)
+        )
+        
+        if (isSupportedFile) {
+          items.push({
+            name: entry.name,
+            path: relPath,
+            type: 'file'
+          })
+        }
       }
     }
   } catch (error) {

@@ -43,6 +43,13 @@
       <!-- 右侧编辑器 -->
       <main class="editor-panel">
         <MarkdownEditor
+          v-if="isMarkdownFile"
+          :file-path="currentFilePath"
+          :content="currentFileContent"
+          @save="handleFileSave"
+        />
+        <CodeEditor
+          v-else
           :file-path="currentFilePath"
           :content="currentFileContent"
           @save="handleFileSave"
@@ -53,17 +60,24 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Document, Refresh } from '@element-plus/icons-vue'
 import FileTree from './components/FileTree.vue'
 import MarkdownEditor from './components/MarkdownEditor.vue'
+import CodeEditor from './components/CodeEditor.vue'
 import { getFileTree, getFileContent, saveFileContent } from './api/files'
 
 const fileTree = ref([])
 const loading = ref(false)
 const currentFilePath = ref('')
 const currentFileContent = ref('')
+
+// 判断是否为 Markdown 文件
+const isMarkdownFile = computed(() => {
+  if (!currentFilePath.value) return false
+  return currentFilePath.value.toLowerCase().endsWith('.md')
+})
 
 // 加载文件树
 const loadFileTree = async () => {
