@@ -24,7 +24,7 @@ Use --isolated to run multiple browser instances.
 
 ```bash
 # 运行测试脚本
-./test_week3_frontend_ui.sh
+./resetreset-mcp-chrome-devtools.sh
 ```
 
 这个脚本会：
@@ -91,7 +91,7 @@ npm run dev
 
 ```bash
 # 运行清理脚本
-./test_week3_frontend_ui.sh
+./reset-mcp-chrome-devtools.sh
 ```
 
 ### 步骤 3: 使用 MCP 工具测试
@@ -160,7 +160,7 @@ rm -rf /Users/mi/.cache/chrome-devtools-mcp/chrome-profile
 
 ```bash
 # 1. 早上开始工作
-./test_week3_frontend_ui.sh
+./reset-mcp-chrome-devtools.sh
 
 # 2. 进行开发和测试
 # ... 编码 ...
@@ -286,7 +286,7 @@ test('评论功能测试', async ({ page }) => {
 
 ```bash
 # 清理旧的浏览器实例
-./test_week3_frontend_ui.sh
+./reset-mcp-chrome-devtools.sh
 
 # 或使用快捷命令
 reset-chrome
@@ -302,7 +302,7 @@ reset-chrome
 
 ```bash
 # 运行完整的测试套件
-./test_week3_frontend_ui.sh
+./reset-mcp-chrome-devtools.sh
 
 # 手动验证关键功能
 # 1. 评论发表和回复

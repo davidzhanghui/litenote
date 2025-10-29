@@ -314,7 +314,7 @@ export MINICONDA_UNINSTALL_LOG_DIR="/custom/log/path"
 
 - [Miniconda官方文档](https://docs.conda.io/en/latest/miniconda.html)
 - [Conda用户指南](https://docs.conda.io/projects/conda/en/latest/user-guide/)
-- [Miniconda安装脚本](./install_miniconda.sh)
+- [Miniconda安装脚本](install_miniconda.sh)
 - [Python环境管理最佳实践](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html)
 
 ## 技术支持

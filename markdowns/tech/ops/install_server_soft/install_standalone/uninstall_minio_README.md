@@ -206,7 +206,7 @@ sudo ufw delete allow 9001/tcp
 ## 相关文档
 
 - [MinIO官方文档](https://docs.min.io/)
-- [MinIO安装脚本](./install_minio.sh)
+- [MinIO安装脚本](install_minio.sh)
 - [系统管理最佳实践](https://docs.min.io/docs/minio-server-configuration-guide.html)
 
 ## 技术支持

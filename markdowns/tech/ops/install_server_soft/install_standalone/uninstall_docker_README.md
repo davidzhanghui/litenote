@@ -227,7 +227,7 @@ dmesg | grep docker
 
 ## 相关文档
 
-- [Docker安装脚本说明](./install_docker_README.md)
+- [Docker安装脚本说明](install_docker_README.md)
 - [Docker官方文档](https://docs.docker.com/)
 - [Docker卸载官方指南](https://docs.docker.com/engine/install/ubuntu/#uninstall-docker-engine)
 
