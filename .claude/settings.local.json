@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:www.anthropic.com)",
+      "Bash(curl -s \"https://docs.claude.com/en/docs/about-claude/models/whats-new-claude-4-5\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
