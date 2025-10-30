@@ -41,20 +41,68 @@
         </div>
       </aside>
 
-      <!-- 右侧编辑器 -->
+      <!-- 右侧编辑器区域 -->
       <main class="editor-panel">
-        <MarkdownEditor
-          v-if="isMarkdownFile"
-          :file-path="currentFilePath"
-          :content="currentFileContent"
-          @save="handleFileSave"
-        />
-        <CodeEditor
-          v-else
-          :file-path="currentFilePath"
-          :content="currentFileContent"
-          @save="handleFileSave"
-        />
+        <!-- 多标签栏 -->
+        <div v-if="openedTabs.length > 0" class="tabs-container">
+          <el-tabs
+            v-model="activeTab"
+            type="card"
+            closable
+            @tab-remove="handleTabRemove"
+            @tab-click="handleTabClick"
+          >
+            <el-tab-pane
+              v-for="tab in openedTabs"
+              :key="tab.path"
+              :label="tab.name"
+              :name="tab.path"
+            >
+              <template #label>
+                <span class="tab-label">
+                  <el-icon v-if="tab.isMarkdown" class="tab-icon">
+                    <Document />
+                  </el-icon>
+                  <el-icon v-else class="tab-icon">
+                    <Tickets />
+                  </el-icon>
+                  <span>{{ tab.name }}</span>
+                </span>
+              </template>
+            </el-tab-pane>
+          </el-tabs>
+        </div>
+
+        <!-- 编辑器内容 -->
+        <div class="editor-content">
+          <template v-if="activeTabData">
+            <MarkdownEditor
+              v-if="activeTabData.isMarkdown"
+              :key="activeTabData.path"
+              :file-path="activeTabData.path"
+              :content="activeTabData.content"
+              @save="handleFileSave"
+            />
+            <CodeEditor
+              v-else
+              :key="activeTabData.path"
+              :file-path="activeTabData.path"
+              :content="activeTabData.content"
+              @save="handleFileSave"
+            />
+          </template>
+          <el-empty
+            v-else
+            description="请从左侧文件树选择文件"
+            :image-size="200"
+          >
+            <template #image>
+              <el-icon :size="100" color="#909399">
+                <FolderOpened />
+              </el-icon>
+            </template>
+          </el-empty>
+        </div>
       </main>
     </div>
   </div>
@@ -63,7 +111,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Document, Refresh } from '@element-plus/icons-vue'
+import { Document, Refresh, Tickets, FolderOpened } from '@element-plus/icons-vue'
 import FileTree from './components/FileTree.vue'
 import MarkdownEditor from './components/MarkdownEditor.vue'
 import CodeEditor from './components/CodeEditor.vue'
@@ -71,13 +119,14 @@ import { getFileTree, getFileContent, saveFileContent } from './api/files'
 
 const fileTree = ref([])
 const loading = ref(false)
-const currentFilePath = ref('')
-const currentFileContent = ref('')
 
-// 判断是否为 Markdown 文件
-const isMarkdownFile = computed(() => {
-  if (!currentFilePath.value) return false
-  return currentFilePath.value.toLowerCase().endsWith('.md')
+// 多标签页管理
+const openedTabs = ref([])
+const activeTab = ref('')
+
+// 当前激活标签的数据
+const activeTabData = computed(() => {
+  return openedTabs.value.find(tab => tab.path === activeTab.value)
 })
 
 // 加载文件树
@@ -98,23 +147,86 @@ const refreshFileTree = () => {
   loadFileTree()
 }
 
-// 处理文件选择
+// 处理文件选择 - 打开新标签或切换到已存在的标签
 const handleFileSelect = async (filePath) => {
   if (!filePath) return
   
-  try {
-    currentFilePath.value = filePath
-    const content = await getFileContent(filePath)
-    currentFileContent.value = content
-  } catch (error) {
-    ElMessage.error('读取文件失败: ' + error.message)
+  // 检查文件是否已经打开
+  const existingTab = openedTabs.value.find(tab => tab.path === filePath)
+  if (existingTab) {
+    // 已打开，直接切换到该标签
+    activeTab.value = filePath
+    return
   }
+  
+  try {
+    // 读取文件内容
+    const content = await getFileContent(filePath)
+    
+    // 提取文件名
+    const fileName = filePath.split('/').pop()
+    
+    // 判断文件类型
+    const isMarkdown = filePath.toLowerCase().endsWith('.md')
+    
+    // 创建新标签
+    const newTab = {
+      path: filePath,
+      name: fileName,
+      content: content,
+      isMarkdown: isMarkdown
+    }
+    
+    // 添加到打开的标签列表
+    openedTabs.value.push(newTab)
+    
+    // 激活新标签
+    activeTab.value = filePath
+    
+  } catch (error) {
+    ElMessage.error('打开文件失败: ' + error.message)
+  }
+}
+
+// 处理标签点击
+const handleTabClick = (tab) => {
+  activeTab.value = tab.props.name
+}
+
+// 处理标签关闭
+const handleTabRemove = (targetPath) => {
+  const tabs = openedTabs.value
+  const targetIndex = tabs.findIndex(tab => tab.path === targetPath)
+  
+  if (targetIndex === -1) return
+  
+  // 如果关闭的是当前激活的标签，需要切换到其他标签
+  if (activeTab.value === targetPath) {
+    // 优先切换到右边的标签，如果没有则切换到左边的
+    if (targetIndex < tabs.length - 1) {
+      activeTab.value = tabs[targetIndex + 1].path
+    } else if (targetIndex > 0) {
+      activeTab.value = tabs[targetIndex - 1].path
+    } else {
+      activeTab.value = ''
+    }
+  }
+  
+  // 移除标签
+  openedTabs.value.splice(targetIndex, 1)
 }
 
 // 处理文件保存
 const handleFileSave = async (filePath, content) => {
   try {
     await saveFileContent(filePath, content)
+    
+    // 更新标签中的内容
+    const tab = openedTabs.value.find(t => t.path === filePath)
+    if (tab) {
+      tab.content = content
+    }
+    
     // 成功提示由子组件负责，避免重复 toast
   } catch (error) {
     ElMessage.error('保存失败: ' + error.message)
@@ -270,5 +382,86 @@ onMounted(() => {
   flex: 1;
   background-color: white;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  .tabs-container {
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    border-bottom: 1px solid #e4e7ed;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+
+    :deep(.el-tabs) {
+      .el-tabs__header {
+        margin: 0;
+        border-bottom: none;
+        background: transparent;
+      }
+
+      .el-tabs__nav {
+        border: none;
+        padding: 8px 12px 0;
+      }
+
+      .el-tabs__item {
+        height: 40px;
+        line-height: 40px;
+        padding: 0 20px;
+        border: 1px solid transparent;
+        border-bottom: none;
+        border-radius: 8px 8px 0 0;
+        margin-right: 4px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background: transparent;
+        color: #606266;
+        font-size: 14px;
+
+        &:hover {
+          background: rgba(102, 126, 234, 0.05);
+          color: #667eea;
+        }
+
+        &.is-active {
+          background: white;
+          border-color: #e4e7ed;
+          border-bottom-color: white;
+          color: #667eea;
+          font-weight: 500;
+          box-shadow: 0 -2px 8px rgba(102, 126, 234, 0.1);
+        }
+
+        .el-icon.is-icon-close {
+          width: 16px;
+          height: 16px;
+          transition: all 0.3s;
+
+          &:hover {
+            background-color: rgba(245, 108, 108, 0.1);
+            color: #f56c6c;
+            border-radius: 50%;
+          }
+        }
+      }
+
+      .el-tabs__nav-wrap::after {
+        display: none;
+      }
+    }
+
+    .tab-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
+      .tab-icon {
+        font-size: 16px;
+      }
+    }
+  }
+
+  .editor-content {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+  }
 }
 </style>
