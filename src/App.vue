@@ -36,6 +36,7 @@
             :tree-data="fileTree"
             :loading="loading"
             @select="handleFileSelect"
+            @refresh="refreshFileTree"
           />
         </div>
       </aside>
@@ -114,7 +115,7 @@ const handleFileSelect = async (filePath) => {
 const handleFileSave = async (filePath, content) => {
   try {
     await saveFileContent(filePath, content)
-    ElMessage.success('保存成功')
+    // 成功提示由子组件负责，避免重复 toast
   } catch (error) {
     ElMessage.error('保存失败: ' + error.message)
   }

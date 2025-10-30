@@ -8,6 +8,22 @@
             <Document />
           </el-icon>
           <span class="file-name">{{ fileName }}</span>
+          <el-tag 
+            v-if="hasUnsavedChanges" 
+            type="warning" 
+            size="small"
+            effect="dark"
+          >
+            未保存
+          </el-tag>
+          <el-tag 
+            v-else
+            type="success" 
+            size="small"
+            effect="dark"
+          >
+            已更新
+          </el-tag>
         </div>
         <div class="actions">
           <el-button-group>
@@ -54,6 +70,7 @@
             :autosize="{ minRows: 20 }"
             placeholder="请输入 Markdown 内容..."
             class="markdown-input"
+            @input="handleInput"
           />
         </div>
 
@@ -80,7 +97,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { ElMessage } from 'element-plus'
 import { 
   Document, 
@@ -110,6 +127,10 @@ const emit = defineEmits(['save'])
 const editContent = ref('')
 const viewMode = ref('split') // edit, preview, split
 const saving = ref(false)
+const hasUnsavedChanges = ref(false)
+const autoSaveEnabled = ref(false)
+let autoSaveTimer = null
+const AUTO_SAVE_INTERVAL = 5000 // 5 秒
 
 // Markdown 渲染器
 const md = new MarkdownIt({
@@ -139,10 +160,59 @@ const renderedHtml = computed(() => {
   return md.render(editContent.value)
 })
 
+// 重置自动保存计时器
+const resetAutoSaveTimer = () => {
+  if (autoSaveTimer) {
+    clearTimeout(autoSaveTimer)
+  }
+
+  autoSaveTimer = setTimeout(() => {
+    if (hasUnsavedChanges.value) {
+      handleAutoSave()
+    }
+  }, AUTO_SAVE_INTERVAL)
+}
+
+// 自动保存
+const handleAutoSave = async () => {
+  if (!hasUnsavedChanges.value) return
+
+  try {
+    await new Promise((resolve) => {
+      emit('save', props.filePath, editContent.value)
+      setTimeout(resolve, 300)
+    })
+    hasUnsavedChanges.value = false
+    // 自动保存后，停止自动保存计时并恢复“已更新”状态
+    autoSaveEnabled.value = false
+    if (autoSaveTimer) {
+      clearTimeout(autoSaveTimer)
+      autoSaveTimer = null
+    }
+    ElMessage.success('已自动保存')
+  } catch (error) {
+    ElMessage.error('自动保存失败: ' + error.message)
+  }
+}
+
 // 监听内容变化
 watch(() => props.content, (newContent) => {
+  // 文件重新加载时，设置内容且不触发“未保存”状态，不开启自动保存
   editContent.value = newContent
+  hasUnsavedChanges.value = false
+  autoSaveEnabled.value = false
+  if (autoSaveTimer) {
+    clearTimeout(autoSaveTimer)
+    autoSaveTimer = null
+  }
 }, { immediate: true })
+
+// 用户输入时才开启未保存与自动保存
+const handleInput = () => {
+  hasUnsavedChanges.value = true
+  autoSaveEnabled.value = true
+  resetAutoSaveTimer()
+}
 
 // 保存文件
 const handleSave = async () => {
@@ -154,12 +224,43 @@ const handleSave = async () => {
   saving.value = true
   try {
     emit('save', props.filePath, editContent.value)
+    hasUnsavedChanges.value = false
+    autoSaveEnabled.value = false
+    if (autoSaveTimer) {
+      clearTimeout(autoSaveTimer)
+      autoSaveTimer = null
+    }
+    ElMessage.success('保存成功')
   } finally {
     setTimeout(() => {
       saving.value = false
     }, 500)
   }
 }
+
+// 处理快捷键
+const handleKeyDown = (e) => {
+  // Ctrl+S 或 Cmd+S 保存
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+    e.preventDefault() // 阻止浏览器默认保存行为
+    if (props.filePath) {
+      handleSave()
+    }
+  }
+}
+
+onMounted(() => {
+  // 监听键盘事件
+  document.addEventListener('keydown', handleKeyDown)
+})
+
+onBeforeUnmount(() => {
+  if (autoSaveTimer) {
+    clearTimeout(autoSaveTimer)
+  }
+  // 移除键盘事件监听
+  document.removeEventListener('keydown', handleKeyDown)
+})
 </script>
 
 <style lang="scss" scoped>

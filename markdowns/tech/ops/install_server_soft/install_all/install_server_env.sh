@@ -62,7 +62,7 @@ update_system() {
         log_info "修复损坏的包..."
         apt --fix-broken install -y
         
-        log_info "使用--fix-missing选项升级系统..."
+        log_info "使用--fix-missing选项升级系统... "
         apt upgrade -y --fix-missing || {
             log_warn "部分包升级失败，继续安装其他组件..."
             # 尝试跳过有问题的包继续安装

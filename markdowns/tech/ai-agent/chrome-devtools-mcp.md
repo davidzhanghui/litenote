@@ -2,7 +2,7 @@
 
 ## 根据figma生成ui
 ```text
-使用chrome devtools访问figma中设计好的页面，用tailwindcss完整的复现这个登录页面：figma_url
+使用chrome devtools访问figma中设计好的页面，用tailwindcss完整的复现这个登录页面：figma_url 
 ```
 
 ## browser use

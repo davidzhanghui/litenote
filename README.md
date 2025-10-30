@@ -6,9 +6,10 @@
 
 - 📁 树形结构显示目录和文件
 - ✏️ 实时 Markdown 编辑和预览
-- 💻 脚本文件编辑支持（Python、JavaScript、Java、C++、Go、Rust、Ruby、PHP、Shell 等）
-- 💾 文件保存功能
-- 🎨 代码高亮和文件类型识别
+- 💻 专业代码编辑器（Monaco Editor）支持 20+ 种编程语言
+- 🎨 高亮代码着色（Java、Vue、Bash、Python、JavaScript、TypeScript、C++、Go、Rust、Ruby、PHP、Shell 等）
+- 💾 智能自动保存（每 5 秒检测变更并自动保存）
+- 📝 文件保存状态提示（显示"未保存"和"已自动保存"状态）
 - 📱 响应式布局
 - 🔄 实时刷新文件树
 - 👀 三种视图模式（编辑/预览/双栏）- 仅限 Markdown 文件
@@ -133,9 +134,12 @@ docs/
 - **Vue 3** - 渐进式 JavaScript 框架
 - **Element Plus** - Vue 3 组件库
 - **Vite** - 下一代前端构建工具
+- **Monaco Editor** - 专业代码编辑器（VS Code 核心）
+- **@monaco-editor/loader** - Monaco Editor 动态加载器
 - **Markdown-it** - Markdown 解析器
 - **Highlight.js** - 代码语法高亮
 - **Axios** - HTTP 客户端
+- **Sass** - CSS 预处理器（使用现代编译器 API）
 
 ### 后端
 - **Node.js** - JavaScript 运行时
@@ -147,31 +151,60 @@ docs/
 ### 基本操作
 1. **查看文件**: 点击左侧文件树中的文件名
 2. **编辑内容**: 在右侧编辑器中修改文件内容
-3. **保存文件**: 点击工具栏的"保存"按钮
+3. **保存文件**: 点击工具栏的"保存"按钮或等待自动保存
 4. **刷新树**: 点击左上角刷新按钮重新加载文件树
+
+### 自动保存功能
+- ⏱️ **自动保存间隔**: 每 5 秒检测一次文档变更
+- 📝 **状态提示**: 工具栏显示保存状态
+  - 黄色标签"未保存" - 表示有未保存的变更
+  - 绿色标签"已自动保存" - 表示已自动保存
+- 💡 **工作流**: 编辑 → 5 秒后自动保存 → 状态更新
 
 ### Markdown 文件
 - 支持三种视图模式：编辑、预览、双栏
 - 使用工具栏按钮切换视图模式
 - 支持实时预览和代码高亮
+- 自动保存功能同样适用
 
-### 脚本文件
-- 支持编辑以下类型的脚本文件：
-  - **Python** (.py)
-  - **JavaScript/JSX** (.js, .jsx)
-  - **TypeScript/TSX** (.ts, .tsx)
-  - **Java** (.java)
-  - **C/C++** (.c, .cpp, .h)
-  - **Go** (.go)
-  - **Rust** (.rs)
-  - **Ruby** (.rb)
-  - **PHP** (.php)
-  - **Shell** (.sh, .bash, .zsh, .fish)
-  - **Web** (.html, .css, .scss, .less, .xml)
-  - **Data** (.json, .yaml, .yml, .sql)
-  - **其他** (.txt, .md)
-- 文件类型会在工具栏显示
-- 支持保存修改
+### 代码文件编辑（Monaco Editor）
+使用专业的 Monaco Editor（VS Code 核心编辑器）编辑代码文件，支持以下语言：
+
+**编程语言**
+- **Java** (.java)
+- **Python** (.py)
+- **JavaScript/JSX** (.js, .jsx)
+- **TypeScript/TSX** (.ts, .tsx)
+- **C/C++** (.c, .cpp, .h, .cc)
+- **Go** (.go)
+- **Rust** (.rs)
+- **Ruby** (.rb)
+- **PHP** (.php)
+
+**脚本语言**
+- **Shell/Bash** (.sh, .bash, .zsh, .fish)
+
+**Web 技术**
+- **Vue** (.vue)
+- **HTML** (.html)
+- **CSS/SCSS/LESS** (.css, .scss, .less)
+- **XML** (.xml)
+
+**数据格式**
+- **JSON** (.json)
+- **YAML** (.yaml, .yml)
+- **SQL** (.sql)
+- **Markdown** (.md)
+- **Text** (.txt)
+
+**编辑器特性**
+- 🎨 语法高亮
+- 🔢 行号显示
+- 🗺️ 代码缩小地图
+- 📏 自动换行
+- 🔧 代码格式化
+- ⌨️ 智能缩进
+- 💾 自动保存
 
 ## 开发指南
 
@@ -190,6 +223,26 @@ npm run preview
 ```
 
 ## 常见问题
+
+**Q: 启动时出现 Sass 弃用警告怎么办？**
+
+A: 这是正常的，已在 `vite.config.js` 中配置使用现代 Sass 编译器 API。如果仍然看到警告，请确保 Sass 版本为最新。
+
+**Q: Monaco Editor 加载失败？**
+
+A: 
+- 确保已运行 `npm install` 安装依赖
+- 检查浏览器控制台是否有网络错误
+- 尝试清除浏览器缓存并刷新页面
+- 确保网络连接正常（Monaco Editor 需要从 CDN 加载资源）
+
+**Q: 自动保存没有工作？**
+
+A: 
+- 检查后端服务是否正在运行
+- 查看浏览器控制台是否有错误信息
+- 确保 `markdowns/` 目录有写入权限
+- 手动点击"保存"按钮进行测试
 
 **Q: 端口被占用怎么办？**
 

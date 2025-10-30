@@ -136,6 +136,261 @@ app.post('/api/file', async (req, res) => {
   }
 })
 
+// 支持的文件扩展名
+const SUPPORTED_EXTENSIONS = [
+  '.md', '.txt',
+  '.js', '.jsx', '.ts', '.tsx', '.vue',
+  '.py', '.java', '.cpp', '.c', '.h', '.cc', '.go', '.rs', '.rb', '.php',
+  '.sh', '.bash', '.zsh', '.fish',
+  '.json', '.yaml', '.yml', '.xml', '.html', '.css', '.scss', '.less',
+  '.sql'
+]
+
+// API: 创建目录
+app.post('/api/directory', async (req, res) => {
+  try {
+    const { path: dirPath, name } = req.body
+    
+    if (!name) {
+      return res.status(400).json({ error: '目录名不能为空' })
+    }
+    
+    // 验证目录名（不允许特殊字符）
+    if (!/^[a-zA-Z0-9_\-\u4e00-\u9fff]+$/.test(name)) {
+      return res.status(400).json({ error: '目录名只能包含字母、数字、下划线、中划线和中文' })
+    }
+    
+    const newDirPath = dirPath ? `${dirPath}/${name}` : name
+    const fullPath = path.join(MARKDOWNS_DIR, newDirPath)
+    
+    // 防止路径遍历攻击
+    if (!fullPath.startsWith(MARKDOWNS_DIR)) {
+      return res.status(403).json({ error: '非法的目录路径' })
+    }
+    
+    // 检查是否已存在
+    try {
+      await fs.access(fullPath)
+      return res.status(409).json({ error: '目录已存在' })
+    } catch {
+      // 目录不存在，继续创建
+    }
+    
+    await fs.mkdir(fullPath, { recursive: true })
+    res.json({ success: true, path: newDirPath })
+  } catch (error) {
+    console.error('创建目录失败:', error)
+    res.status(500).json({ error: '创建目录失败' })
+  }
+})
+
+// API: 重命名目录
+app.put('/api/directory', async (req, res) => {
+  try {
+    const { path: oldPath, newName } = req.body
+    
+    if (!oldPath || !newName) {
+      return res.status(400).json({ error: '路径和新名称不能为空' })
+    }
+    
+    // 验证新名称
+    if (!/^[a-zA-Z0-9_\-\u4e00-\u9fff]+$/.test(newName)) {
+      return res.status(400).json({ error: '目录名只能包含字母、数字、下划线、中划线和中文' })
+    }
+    
+    const oldFullPath = path.join(MARKDOWNS_DIR, oldPath)
+    const parentDir = path.dirname(oldFullPath)
+    const newFullPath = path.join(parentDir, newName)
+    
+    // 防止路径遍历攻击
+    if (!oldFullPath.startsWith(MARKDOWNS_DIR) || !newFullPath.startsWith(MARKDOWNS_DIR)) {
+      return res.status(403).json({ error: '非法的目录路径' })
+    }
+    
+    // 检查新名称是否已存在
+    try {
+      await fs.access(newFullPath)
+      return res.status(409).json({ error: '目录已存在' })
+    } catch {
+      // 新目录不存在，继续重命名
+    }
+    
+    await fs.rename(oldFullPath, newFullPath)
+    const newPath = oldPath.substring(0, oldPath.lastIndexOf('/')) + '/' + newName
+    res.json({ success: true, newPath: newPath.startsWith('/') ? newPath.substring(1) : newPath })
+  } catch (error) {
+    console.error('重命名目录失败:', error)
+    res.status(500).json({ error: '重命名目录失败' })
+  }
+})
+
+// API: 创建文件
+app.post('/api/create-file', async (req, res) => {
+  try {
+    const { path: filePath, name, extension } = req.body
+    
+    if (!name || !extension) {
+      return res.status(400).json({ error: '文件名和扩展名不能为空' })
+    }
+    
+    // 验证文件名
+    if (!/^[a-zA-Z0-9_\-\u4e00-\u9fff]+$/.test(name)) {
+      return res.status(400).json({ error: '文件名只能包含字母、数字、下划线、中划线和中文' })
+    }
+    
+    // 验证扩展名
+    if (!SUPPORTED_EXTENSIONS.includes(extension)) {
+      return res.status(400).json({ error: '不支持的文件类型' })
+    }
+    
+    const fileName = `${name}${extension}`
+    const newFilePath = filePath ? `${filePath}/${fileName}` : fileName
+    const fullPath = path.join(MARKDOWNS_DIR, newFilePath)
+    
+    // 防止路径遍历攻击
+    if (!fullPath.startsWith(MARKDOWNS_DIR)) {
+      return res.status(403).json({ error: '非法的文件路径' })
+    }
+    
+    // 检查是否已存在
+    try {
+      await fs.access(fullPath)
+      return res.status(409).json({ error: '文件已存在' })
+    } catch {
+      // 文件不存在，继续创建
+    }
+    
+    // 确保目录存在
+    const dirPath = path.dirname(fullPath)
+    await fs.mkdir(dirPath, { recursive: true })
+    
+    // 创建空文件
+    await fs.writeFile(fullPath, '', 'utf-8')
+    
+    res.json({ success: true, path: newFilePath })
+  } catch (error) {
+    console.error('创建文件失败:', error)
+    res.status(500).json({ error: '创建文件失败' })
+  }
+})
+
+// API: 删除目录
+app.delete('/api/directory', async (req, res) => {
+  try {
+    const { path: dirPath } = req.body
+    
+    if (!dirPath) {
+      return res.status(400).json({ error: '目录路径不能为空' })
+    }
+    
+    const fullPath = path.join(MARKDOWNS_DIR, dirPath)
+    
+    // 防止路径遍历攻击
+    if (!fullPath.startsWith(MARKDOWNS_DIR)) {
+      return res.status(403).json({ error: '非法的目录路径' })
+    }
+    
+    // 防止删除根目录
+    if (fullPath === MARKDOWNS_DIR) {
+      return res.status(403).json({ error: '不能删除根目录' })
+    }
+    
+    // 检查目录是否存在
+    try {
+      const stats = await fs.stat(fullPath)
+      if (!stats.isDirectory()) {
+        return res.status(400).json({ error: '路径不是目录' })
+      }
+    } catch {
+      return res.status(404).json({ error: '目录不存在' })
+    }
+    
+    // 递归删除目录
+    await fs.rm(fullPath, { recursive: true, force: true })
+    
+    res.json({ success: true })
+  } catch (error) {
+    console.error('删除目录失败:', error)
+    res.status(500).json({ error: '删除目录失败' })
+  }
+})
+
+// API: 删除文件
+app.delete('/api/file', async (req, res) => {
+  try {
+    const { path: filePath } = req.body
+    
+    if (!filePath) {
+      return res.status(400).json({ error: '文件路径不能为空' })
+    }
+    
+    const fullPath = path.join(MARKDOWNS_DIR, filePath)
+    
+    // 防止路径遍历攻击
+    if (!fullPath.startsWith(MARKDOWNS_DIR)) {
+      return res.status(403).json({ error: '非法的文件路径' })
+    }
+    
+    // 检查文件是否存在
+    try {
+      const stats = await fs.stat(fullPath)
+      if (!stats.isFile()) {
+        return res.status(400).json({ error: '路径不是文件' })
+      }
+    } catch {
+      return res.status(404).json({ error: '文件不存在' })
+    }
+    
+    // 删除文件
+    await fs.unlink(fullPath)
+    
+    res.json({ success: true })
+  } catch (error) {
+    console.error('删除文件失败:', error)
+    res.status(500).json({ error: '删除文件失败' })
+  }
+})
+
+// API: 重命名文件
+app.put('/api/file-rename', async (req, res) => {
+  try {
+    const { path: oldPath, newName } = req.body
+    
+    if (!oldPath || !newName) {
+      return res.status(400).json({ error: '路径和新名称不能为空' })
+    }
+    
+    const oldFullPath = path.join(MARKDOWNS_DIR, oldPath)
+    const parentDir = path.dirname(oldFullPath)
+    const newFullPath = path.join(parentDir, newName)
+    
+    // 防止路径遍历攻击
+    if (!oldFullPath.startsWith(MARKDOWNS_DIR) || !newFullPath.startsWith(MARKDOWNS_DIR)) {
+      return res.status(403).json({ error: '非法的文件路径' })
+    }
+    
+    // 检查新名称是否已存在
+    try {
+      await fs.access(newFullPath)
+      return res.status(409).json({ error: '文件已存在' })
+    } catch {
+      // 新文件不存在，继续重命名
+    }
+    
+    await fs.rename(oldFullPath, newFullPath)
+    const newPath = oldPath.substring(0, oldPath.lastIndexOf('/')) + '/' + newName
+    res.json({ success: true, newPath: newPath.startsWith('/') ? newPath.substring(1) : newPath })
+  } catch (error) {
+    console.error('重命名文件失败:', error)
+    res.status(500).json({ error: '重命名文件失败' })
+  }
+})
+
+// API: 获取支持的文件扩展名
+app.get('/api/supported-extensions', (req, res) => {
+  res.json({ extensions: SUPPORTED_EXTENSIONS })
+})
+
 app.listen(PORT, () => {
   console.log(`服务器运行在 http://localhost:${PORT}`)
   console.log(`Markdown 文件目录: ${MARKDOWNS_DIR}`)
