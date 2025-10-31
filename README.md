@@ -1,72 +1,75 @@
-# 多功能文件编辑器
+# Multi-Function File Editor
 
-基于 Vue3 + Element Plus + Monaco Editor 的本地文件管理和编辑系统
+A local file management and editing system based on Vue3 + Element Plus + Monaco Editor
 
-支持 Markdown、代码文件等 20+ 种文件格式的在线编辑，提供完整的文件管理功能（创建、删除、重命名）和智能自动保存。
+Supports online editing of 20+ file formats including Markdown and code files, with complete file management features (create, delete, rename) and intelligent auto-save.
 
-## 功能特性
+![demo](demo.png)
 
-### 文件浏览与编辑
 
-- 📁 树形结构显示目录和文件
-- 📚 **多标签页支持** - 同时打开多个文件，快速切换
-- ✏️ 实时 Markdown 编辑和预览
-- 💻 专业代码编辑器（Monaco Editor）支持 20+ 种编程语言
-- 🎨 高亮代码着色（Java、Vue、Bash、Python、JavaScript、TypeScript、C++、Go、Rust、Ruby、PHP、Shell 等）
-- 👀 三种视图模式（编辑/预览/双栏）- 仅限 Markdown 文件
+## Features
 
-### 智能保存
+### File Browsing & Editing
 
-- 💾 智能自动保存（每 5 秒检测变更并自动保存）
-- 📝 文件保存状态提示（显示"未保存"和"已自动保存"状态）
-- 🎛️ **自动更新开关** - 每个标签独立控制自动保存功能
-- ⚡ **性能优化** - 防抖机制避免频繁保存操作
+- 📁 Tree structure display of directories and files
+- 📚 **Multi-tab support** - Open multiple files simultaneously and switch quickly
+- ✏️ Real-time Markdown editing and preview
+- 💻 Professional code editor (Monaco Editor) supporting 20+ programming languages
+- 🎨 Syntax highlighting for code (Java, Vue, Bash, Python, JavaScript, TypeScript, C++, Go, Rust, Ruby, PHP, Shell, etc.)
+- 👀 Three view modes (edit/preview/split) - Markdown files only
 
-### 文件管理
+### Smart Saving
 
-- 📂 创建目录（右键菜单 → 创建目录）
-- 📄 新建文件（右键菜单 → 新建文件，支持 20+ 种文件格式）
-- ✏️ 重命名文件/目录（右键菜单 → 重命名）
-- 🗑️ 删除文件/目录（右键菜单 → 删除）
-- 🔄 实时刷新文件树
+- 💾 Intelligent auto-save (detects changes every 5 seconds and saves automatically)
+- 📝 File save status indicator (shows "Unsaved" and "Auto-saved" status)
+- 🎛️ **Auto-save toggle** - Each tab independently controls auto-save functionality
+- ⚡ **Performance optimization** - Debounce mechanism avoids frequent save operations
 
-### 增强功能
+### File Management
 
-- ⬇️ **文件下载** - 支持下载源文件，显示文件大小信息
-- ⌨️ **快捷键支持** - Ctrl+S 保存，Ctrl+W 关闭当前标签
-- 🖱️ **右键菜单** - 标签页右键菜单支持关闭操作
-- 💾 **标签状态持久化** - 刷新页面后自动恢复打开的标签
-- 🎛️ **独立自动更新控制** - 每个标签可单独开启/关闭自动保存
+- 📂 Create directory (right-click menu → Create directory)
+- 📄 Create new file (right-click menu → New file, supports 20+ file formats)
+- ✏️ Rename file/directory (right-click menu → Rename)
+- 🗑️ Delete file/directory (right-click menu → Delete)
+- 🔄 Real-time file tree refresh
 
-### 其他特性
+### Enhanced Features
 
-- 📱 响应式布局
-- 🔒 路径安全防护（防止路径遍历攻击）
-- ✅ 文件名验证（支持字母、数字、下划线、中划线和中文）
+- ⬇️ **File download** - Support downloading source files with file size information
+- ⌨️ **Keyboard shortcuts** - Ctrl+S to save, Ctrl+W to close current tab
+- 🖱️ **Right-click menu** - Tab right-click menu supports close operations
+- 💾 **Tab state persistence** - Automatically restores opened tabs after page refresh
+- 🎛️ **Independent auto-save control** - Each tab can individually enable/disable auto-save
 
-## 快速开始
+### Other Features
 
-### 方式一：一键启动（推荐）
+- 📱 Responsive layout
+- 🔒 Path security protection (prevents path traversal attacks)
+- ✅ Filename validation (supports letters, numbers, underscores, hyphens, and Chinese characters)
+
+## Quick Start
+
+### Method 1: One-Click Launch (Recommended)
 
 ```bash
-# 给启动脚本添加执行权限
+# Add execute permission to the startup script
 chmod +x start.sh
 
-# 运行启动脚本（会自动安装依赖并启动前后端服务）
+# Run the startup script (automatically installs dependencies and starts frontend/backend services)
 ./start.sh
 ```
 
-### 方式二：分步启动
+### Method 2: Step-by-Step Launch
 
-#### 1. 安装依赖
+#### 1. Install Dependencies
 
-**前端依赖：**
+**Frontend dependencies:**
 
 ```bash
 npm install
 ```
 
-**后端依赖：**
+**Backend dependencies:**
 
 ```bash
 cd server
@@ -74,275 +77,275 @@ npm install
 cd ..
 ```
 
-#### 2. 启动服务
+#### 2. Start Services
 
-**启动后端 API 服务（端口 30001）：**
+**Start backend API service (port 30001):**
 
-在一个终端窗口中运行：
+Run in a terminal window:
 
 ```bash
 cd server
 npm start
 ```
 
-服务启动后会显示：
+After service starts, it will display:
 
 ```
-服务器运行在 http://localhost:30001
-Markdown 文件目录: /path/to/notes
+Server running at http://localhost:30001
+Markdown files directory: /path/to/notes
 ```
 
-**启动前端开发服务器（端口 3001）：**
+**Start frontend development server (port 3001):**
 
-在另一个终端窗口中运行：
+Run in another terminal window:
 
 ```bash
 npm run dev
 ```
 
-服务启动后会显示：
+After service starts, it will display:
 
 ```
 ➜  Local:   http://localhost:3001/
 ```
 
-#### 3. 访问应用
+#### 3. Access Application
 
-打开浏览器访问：**http://localhost:3001**
+Open browser and visit: **http://localhost:3001**
 
-## 端口配置
+## Port Configuration
 
-- **前端服务**: `http://localhost:3001`
-- **后端 API**: `http://localhost:30001`
-- **API 代理**: 前端通过 `/api` 路径代理到后端服务
+- **Frontend service**: `http://localhost:3001`
+- **Backend API**: `http://localhost:30001`
+- **API proxy**: Frontend proxies to backend service via `/api` path
 
-## 项目结构
+## Project Structure
 
 ```
 docs/
-├── src/                      # 前端源码
-│   ├── components/          # Vue 组件
-│   │   ├── FileTree.vue     # 文件树组件
-│   │   ├── MarkdownEditor.vue  # Markdown 编辑器
-│   │   └── CodeEditor.vue   # 代码编辑器（支持多种脚本文件）
-│   ├── api/                 # API 接口
-│   │   └── files.js         # 文件操作 API
-│   ├── styles/              # 样式文件
-│   │   └── main.scss        # 全局样式
-│   ├── App.vue              # 主应用组件
-│   └── main.js              # 入口文件
-├── server/                  # 后端服务
-│   ├── server.js            # Express 服务器
-│   └── package.json         # 后端依赖配置
-├── notes/               # 文件存储目录（支持 Markdown 和脚本文件）
+├── src/                      # Frontend source code
+│   ├── components/          # Vue components
+│   │   ├── FileTree.vue     # File tree component
+│   │   ├── MarkdownEditor.vue  # Markdown editor
+│   │   └── CodeEditor.vue   # Code editor (supports multiple script files)
+│   ├── api/                 # API interfaces
+│   │   └── files.js         # File operations API
+│   ├── styles/              # Style files
+│   │   └── main.scss        # Global styles
+│   ├── App.vue              # Main application component
+│   └── main.js              # Entry file
+├── server/                  # Backend service
+│   ├── server.js            # Express server
+│   └── package.json         # Backend dependencies configuration
+├── notes/               # File storage directory (supports Markdown and script files)
 │   ├── 示例文档.md
-│   ├── example.py           # Python 示例
-│   ├── example.js           # JavaScript 示例
-│   ├── example.sh           # Shell 示例
+│   ├── example.py           # Python example
+│   ├── example.js           # JavaScript example
+│   ├── example.sh           # Shell example
 │   ├── 学习笔记/
 │   └── 项目文档/
-├── package.json             # 前端依赖配置
-├── vite.config.js           # Vite 配置
-├── index.html               # HTML 模板
-├── start.sh                 # 一键启动脚本
-└── README.md                # 项目说明
+├── package.json             # Frontend dependencies configuration
+├── vite.config.js           # Vite configuration
+├── index.html               # HTML template
+├── start.sh                 # One-click startup script
+└── README.md                # Project documentation
 ```
 
-## 后端 API 接口
+## Backend API Interfaces
 
-### 文件浏览与读写
+### File Browsing & Read/Write
 
 - **GET** `/api/files`
 
-  - 功能：获取文件树
-  - 返回：树形结构的文件和目录列表
-- **GET** `/api/file?path=<文件路径>`
+  - Function: Get file tree
+  - Returns: Tree-structured list of files and directories
+- **GET** `/api/file?path=<file_path>`
 
-  - 功能：读取文件内容
-  - 参数：`path` - 文件相对路径
-  - 返回：文件内容
+  - Function: Read file content
+  - Parameter: `path` - File relative path
+  - Returns: File content
 - **POST** `/api/file`
 
-  - 功能：保存文件内容
-  - 请求体：`{ "path": "文件路径", "content": "文件内容" }`
-  - 返回：保存结果
+  - Function: Save file content
+  - Request body: `{ "path": "file_path", "content": "file_content" }`
+  - Returns: Save result
 
-### 目录管理
+### Directory Management
 
 - **POST** `/api/directory`
 
-  - 功能：创建目录
-  - 请求体：`{ "path": "父目录路径", "name": "目录名" }`
-  - 返回：`{ "success": true, "path": "新目录路径" }`
+  - Function: Create directory
+  - Request body: `{ "path": "parent_directory_path", "name": "directory_name" }`
+  - Returns: `{ "success": true, "path": "new_directory_path" }`
 - **PUT** `/api/directory`
 
-  - 功能：重命名目录
-  - 请求体：`{ "path": "目录路径", "newName": "新名称" }`
-  - 返回：`{ "success": true, "newPath": "新路径" }`
+  - Function: Rename directory
+  - Request body: `{ "path": "directory_path", "newName": "new_name" }`
+  - Returns: `{ "success": true, "newPath": "new_path" }`
 - **DELETE** `/api/directory`
 
-  - 功能：删除目录（递归删除）
-  - 请求体：`{ "path": "目录路径" }`
-  - 返回：`{ "success": true }`
+  - Function: Delete directory (recursive deletion)
+  - Request body: `{ "path": "directory_path" }`
+  - Returns: `{ "success": true }`
 
-### 文件管理
+### File Management
 
 - **POST** `/api/create-file`
 
-  - 功能：创建新文件
-  - 请求体：`{ "path": "父目录路径", "name": "文件名", "extension": "扩展名" }`
-  - 返回：`{ "success": true, "path": "新文件路径" }`
+  - Function: Create new file
+  - Request body: `{ "path": "parent_directory_path", "name": "file_name", "extension": "extension" }`
+  - Returns: `{ "success": true, "path": "new_file_path" }`
 - **PUT** `/api/file-rename`
 
-  - 功能：重命名文件
-  - 请求体：`{ "path": "文件路径", "newName": "新文件名（含扩展名）" }`
-  - 返回：`{ "success": true, "newPath": "新路径" }`
+  - Function: Rename file
+  - Request body: `{ "path": "file_path", "newName": "new_file_name_with_extension" }`
+  - Returns: `{ "success": true, "newPath": "new_path" }`
 - **DELETE** `/api/file`
 
-  - 功能：删除文件
-  - 请求体：`{ "path": "文件路径" }`
-  - 返回：`{ "success": true }`
+  - Function: Delete file
+  - Request body: `{ "path": "file_path" }`
+  - Returns: `{ "success": true }`
 
-### 其他
+### Other
 
 - **GET** `/api/supported-extensions`
-  - 功能：获取支持的文件扩展名列表
-  - 返回：`{ "extensions": [".md", ".txt", ...] }`
+  - Function: Get list of supported file extensions
+  - Returns: `{ "extensions": [".md", ".txt", ...] }`
 
-## 技术栈
+## Technology Stack
 
-### 前端
+### Frontend
 
-- **Vue 3** - 渐进式 JavaScript 框架
-- **Element Plus** - Vue 3 组件库
-- **Vite** - 下一代前端构建工具
-- **Monaco Editor** - 专业代码编辑器（VS Code 核心）
-- **@monaco-editor/loader** - Monaco Editor 动态加载器
-- **@vueuse/core** - Vue 组合式API工具集
-- **Markdown-it** - Markdown 解析器
-- **Highlight.js** - 代码语法高亮
-- **Axios** - HTTP 客户端
-- **Sass** - CSS 预处理器（使用现代编译器 API）
+- **Vue 3** - Progressive JavaScript framework
+- **Element Plus** - Vue 3 component library
+- **Vite** - Next-generation frontend build tool
+- **Monaco Editor** - Professional code editor (VS Code core)
+- **@monaco-editor/loader** - Monaco Editor dynamic loader
+- **@vueuse/core** - Vue composition API utilities
+- **Markdown-it** - Markdown parser
+- **Highlight.js** - Code syntax highlighting
+- **Axios** - HTTP client
+- **Sass** - CSS preprocessor (using modern compiler API)
 
-### 后端
+### Backend
 
-- **Node.js** - JavaScript 运行时
-- **Express** - Web 应用框架
-- **CORS** - 跨域资源共享
+- **Node.js** - JavaScript runtime
+- **Express** - Web application framework
+- **CORS** - Cross-origin resource sharing
 
-## 使用说明
+## Usage Instructions
 
-### 基本操作
+### Basic Operations
 
-1. **查看文件**: 点击左侧文件树中的文件名
-2. **编辑内容**: 在右侧编辑器中修改文件内容
-3. **保存文件**: 点击工具栏的“保存”按钮或等待自动保存
-4. **刷新树**: 点击左上角刷新按钮重新加载文件树
+1. **View files**: Click on file names in the left file tree
+2. **Edit content**: Modify file content in the right editor
+3. **Save files**: Click the "Save" button in the toolbar or wait for auto-save
+4. **Refresh tree**: Click the refresh button in the top left to reload the file tree
 
-### 多标签页功能
+### Multi-Tab Functionality
 
-- 📚 **打开多个文件**: 点击文件树中的文件，会在顶部标签栏打开新标签
-- ♻️ **切换标签**: 点击标签页切换到对应文件
-- ❌ **关闭标签**: 点击标签上的 × 按钮关闭文件
-- 🔄 **智能切换**: 关闭当前标签后自动切换到相邻标签
-- 🚫 **防重复**: 已打开的文件再次点击会直接切换，不会重复打开
-- 🎨 **图标区分**: Markdown 文件和代码文件显示不同图标
-- 💾 **独立保存**: 每个标签独立管理保存状态
-- 🎛️ **自动更新控制**: 每个标签都有独立的自动保存开关
-- 🖱️ **右键菜单**: 右键点击标签显示关闭选项菜单
-- 💾 **状态持久化**: 刷新页面后自动恢复之前打开的标签和状态
-- ⌨️ **快捷键支持**: Ctrl+W 关闭当前标签
+- 📚 **Open multiple files**: Click on file names in the left file tree to open new tabs
+- ♻️ **Switch tabs**: Click on tabs to switch between files
+- ❌ **Close tabs**: Click the × button on tabs to close files
+- 🔄 **Smart switching**: Closing the current tab will automatically switch to the adjacent tab
+- 🚫 **Prevent duplicates**: Opening a file that is already open will directly switch to it without reopening
+- 🎨 **Icon distinction**: Markdown files and code files are displayed with different icons
+- 💾 **Independent saving**: Each tab has independent auto-save control
+- 🎛️ **Auto-save control**: Each tab has independent auto-save control
+- 🖱️ **Right-click menu**: Right-click on tabs to display a menu with close options
+- 💾 **State persistence**: Tab states are persisted after page refresh
+- ⌨️ **Shortcut key support**: Ctrl+W closes the current tab
 
-**标签右键菜单选项：**
+**Tab right-click menu options:**
 
-- 关闭当前标签
-- 关闭其他标签
-- 关闭所有标签
-- 关闭左侧标签
-- 关闭右侧标签
+- Close current tab
+- Close other tabs
+- Close all tabs
+- Close left tabs
+- Close right tabs
 
-### 文件管理操作
+### File Management Operations
 
-#### 创建目录
+#### Create Directory
 
-1. 在文件树中右键点击目标目录（或空白区域创建在根目录）
-2. 选择"创建目录"
-3. 输入目录名称（支持字母、数字、下划线、中划线和中文）
-4. 点击确定
+1. Right-click on the target directory in the file tree (or blank area to create in root directory)
+2. Select "Create directory"
+3. Enter directory name (supports letters, numbers, underscores, hyphens, and Chinese characters)
+4. Click OK
 
-#### 新建文件
+#### Create New File
 
-1. 在文件树中右键点击目标目录
-2. 选择"新建文件"
-3. 输入文件名（不含扩展名）
-4. 选择文件类型（Markdown、Web 开发、编程语言、脚本、数据格式等）
-5. 点击确定
+1. Right-click on the target directory in the file tree
+2. Select "New file"
+3. Enter file name (without extension)
+4. Select file type (Markdown, Web Development, Programming Languages, Scripts, Data Formats, etc.)
+5. Click OK
 
-**支持的文件格式分类：**
+**Supported file format categories:**
 
 - **Markdown & Text**: .md, .txt
-- **Web 开发**: .html, .css, .scss, .less, .js, .jsx, .ts, .tsx, .vue, .xml
-- **编程语言**: .py, .java, .c, .cpp, .cc, .h, .go, .rs, .rb, .php
-- **脚本语言**: .sh, .bash, .zsh, .fish
-- **数据格式**: .json, .yaml, .yml, .sql
+- **Web Development**: .html, .css, .scss, .less, .js, .jsx, .ts, .tsx, .vue, .xml
+- **Programming Languages**: .py, .java, .c, .cpp, .cc, .h, .go, .rs, .rb, .php
+- **Script Languages**: .sh, .bash, .zsh, .fish
+- **Data Formats**: .json, .yaml, .yml, .sql
 
-#### 重命名文件/目录
+#### Rename File/Directory
 
-1. 在文件树中右键点击要重命名的文件或目录
-2. 选择"重命名"
-3. 输入新名称
-   - 目录：输入新目录名
-   - 文件：输入新文件名（需包含扩展名）
-4. 点击确定
+1. Right-click on the file or directory to rename in the file tree
+2. Select "Rename"
+3. Enter new name
+   - Directory: Enter new directory name
+   - File: Enter new file name (must include extension)
+4. Click OK
 
-#### 删除文件/目录
+#### Delete File/Directory
 
-1. 在文件树中右键点击要删除的文件或目录
-2. 选择"删除"
-3. 确认删除操作
-   - ⚠️ **注意**: 删除目录会递归删除其中所有内容
-   - ⚠️ **注意**: 删除操作不可恢复，请谨慎操作
+1. Right-click on the file or directory to delete in the file tree
+2. Select "Delete"
+3. Confirm delete operation
+   - ⚠️ **Note**: Deleting a directory will recursively delete all its contents
+   - ⚠️ **Note**: Delete operation cannot be undone, please proceed with caution
 
-### 自动保存功能
+### Auto-Save Functionality
 
-- ⏱️ **自动保存间隔**: 每 5 秒检测一次文档变更
-- 📝 **状态提示**: 工具栏显示保存状态
-  - 黄色标签"未保存" - 表示有未保存的变更
-  - 绿色标签"已自动保存" - 表示已自动保存
-- 🎛️ **独立控制**: 每个标签页都有独立的自动保存开关
-- ⚡ **性能优化**: 使用防抖机制避免频繁的localStorage操作
-- 💾 **状态持久化**: 自动保存设置会在页面刷新后保持
-- 💡 **智能工作流**: 编辑 → 变更检测 → 防抖延迟 → 自动保存 → 状态更新
+- ⏱️ **Auto-save interval**: Detects document changes every 5 seconds
+- 📝 **Status indicator**: Toolbar shows save status
+  - Yellow label "Unsaved" - Indicates there are unsaved changes
+  - Green label "Auto-saved" - Indicates file has been auto-saved
+- 🎛️ **Independent control**: Each tab has independent auto-save toggle
+- ⚡ **Performance optimization**: Uses debounce mechanism to avoid frequent localStorage operations
+- 💾 **State persistence**: Auto-save settings persist after page refresh
+- 💡 **Smart workflow**: Edit → Change detection → Debounce delay → Auto-save → Status update
 
-### Markdown 文件
+### Markdown Files
 
-- 支持三种视图模式：编辑、预览、双栏
-- 使用工具栏按钮切换视图模式
-- 支持实时预览和代码高亮
-- 自动保存功能同样适用
-- ⬇️ **文件下载**: 点击"下载"按钮下载源文件
-- ⌨️ **Tab缩进**: 在编辑器中按Tab键插入2个空格缩进
+- Supports three view modes: edit, preview, split
+- Use toolbar buttons to switch view modes
+- Supports real-time preview and code highlighting
+- Auto-save functionality also applies
+- ⬇️ **File download**: Click "Download" button to download source file
+- ⌨️ **Tab indentation**: Press Tab key in editor to insert 2-space indentation
 
-### 文件下载功能
+### File Download Functionality
 
-- 📥 **下载源文件**: 点击工具栏的"下载"按钮
-- 📊 **文件大小显示**: 下载成功后显示文件大小信息
-- 🛡️ **大小限制**: 单个文件最大支持10MB下载
-- 🔒 **安全检查**: 下载前进行文件验证和错误处理
-- 📝 **智能命名**: 自动使用原文件名作为下载文件名
+- 📥 **Download source file**: Click the "Download" button in the toolbar
+- 📊 **File size display**: Shows file size information after successful download
+- 🛡️ **Size limit**: Maximum 10MB download support for single files
+- 🔒 **Security check**: Performs file validation and error handling before download
+- 📝 **Smart naming**: Automatically uses original filename as download filename
 
-### 快捷键支持
+### Keyboard Shortcuts
 
-- **Ctrl+S / Cmd+S**: 保存当前文件
-- **Ctrl+W / Cmd+W**: 关闭当前标签页
-- **Tab**: 在Markdown编辑器中插入2个空格缩进
-- **Esc**: 关闭右键菜单（点击其他区域也可关闭）
+- **Ctrl+S / Cmd+S**: Save current file
+- **Ctrl+W / Cmd+W**: Close current tab
+- **Tab**: Insert 2-space indentation in Markdown editor
+- **Esc**: Close right-click menu (can also close by clicking other areas)
 
-### 代码文件编辑（Monaco Editor）
+### Code File Editing (Monaco Editor)
 
-使用专业的 Monaco Editor（VS Code 核心编辑器）编辑代码文件，支持以下语言：
+Use professional Monaco Editor (VS Code core editor) to edit code files, supporting the following languages:
 
-**编程语言**
+**Programming Languages**
 
 - **Java** (.java)
 - **Python** (.py)
@@ -354,18 +357,18 @@ docs/
 - **Ruby** (.rb)
 - **PHP** (.php)
 
-**脚本语言**
+**Script Languages**
 
 - **Shell/Bash** (.sh, .bash, .zsh, .fish)
 
-**Web 技术**
+**Web Technologies**
 
 - **Vue** (.vue)
 - **HTML** (.html)
 - **CSS/SCSS/LESS** (.css, .scss, .less)
 - **XML** (.xml)
 
-**数据格式**
+**Data Formats**
 
 - **JSON** (.json)
 - **YAML** (.yaml, .yml)
@@ -373,131 +376,131 @@ docs/
 - **Markdown** (.md)
 - **Text** (.txt)
 
-**编辑器特性**
+**Editor Features**
 
-- 🎨 语法高亮
-- 🔢 行号显示
-- 🗺️ 代码缩小地图
-- 📏 自动换行
-- 🔧 代码格式化
-- ⌨️ 智能缩进
-- 💾 自动保存
+- 🎨 Syntax highlighting
+- 🔢 Line numbers
+- 🗺️ Code minimap
+- 📏 Word wrap
+- 🔧 Code formatting
+- ⌨️ Smart indentation
+- 💾 Auto-save
 
-## 开发指南
+## Development Guide
 
-### 构建生产版本
+### Build Production Version
 
 ```bash
 npm run build
 ```
 
-构建输出位于 `dist/` 目录。
+Build output is located in the `dist/` directory.
 
-### 预览生产构建
+### Preview Production Build
 
 ```bash
 npm run preview
 ```
 
-## 常见问题
+## Frequently Asked Questions
 
-**Q: 启动时出现 Sass 弃用警告怎么办？**
+**Q: What should I do if I see Sass deprecation warnings on startup?**
 
-A: 这是正常的，已在 `vite.config.js` 中配置使用现代 Sass 编译器 API。如果仍然看到警告，请确保 Sass 版本为最新。
+A: This is normal. We have configured to use modern Sass compiler API in `vite.config.js`. If you still see warnings, please ensure Sass version is up to date.
 
-**Q: Monaco Editor 加载失败？**
-
-A:
-
-- 确保已运行 `npm install` 安装依赖
-- 检查浏览器控制台是否有网络错误
-- 尝试清除浏览器缓存并刷新页面
-- 确保网络连接正常（Monaco Editor 需要从 CDN 加载资源）
-
-**Q: 自动保存没有工作？**
+**Q: Monaco Editor failed to load?**
 
 A:
 
-- 检查后端服务是否正在运行
-- 查看浏览器控制台是否有错误信息
-- 确保 `notes/` 目录有写入权限
-- 手动点击"保存"按钮进行测试
+- Ensure you have run `npm install` to install dependencies
+- Check browser console for network errors
+- Try clearing browser cache and refresh the page
+- Ensure network connection is normal (Monaco Editor needs to load resources from CDN)
 
-**Q: 端口被占用怎么办？**
-
-A: 修改以下文件中的端口配置：
-
-- 前端端口: `vite.config.js` 中的 `server.port`
-- 后端端口: `server/server.js` 中的 `PORT` 常量
-- 同时更新 `vite.config.js` 中的代理目标 `server.proxy['/api'].target`
-
-**Q: 文件无法保存？**
-
-A: 确保后端服务正在运行，检查 `notes/` 目录的读写权限。
-
-**Q: 看不到文件树？**
-
-A: 检查后端服务是否正常启动，浏览器控制台是否有错误信息。
-
-**Q: 无法创建目录或文件？**
+**Q: Auto-save is not working?**
 
 A:
 
-- 确保目录名/文件名只包含字母、数字、下划线、中划线和中文
-- 检查父目录是否存在
-- 确保 `notes/` 目录有写入权限
-- 查看浏览器控制台是否有错误提示
+- Check if backend service is running
+- Check browser console for error messages
+- Ensure `notes/` directory has write permissions
+- Try manually clicking "Save" button to test
 
-**Q: 删除文件/目录后无法恢复怎么办？**
+**Q: What to do if ports are occupied?**
 
-A: 删除操作是永久性的，无法直接恢复。建议：
+A: Modify port configuration in the following files:
 
-- 重要文件定期备份
-- 删除前仔细确认
-- 可以考虑使用版本控制系统（如 Git）管理文档
+- Frontend port: `server.port` in `vite.config.js`
+- Backend port: `PORT` constant in `server/server.js`
+- Also update proxy target `server.proxy['/api'].target` in `vite.config.js`
 
-**Q: 右键菜单没有出现？**
+**Q: Files cannot be saved?**
 
-A:
+A: Ensure backend service is running and check read/write permissions for `notes/` directory.
 
-- 确保右键点击在文件树区域或标签页区域
-- 刷新页面重试
-- 检查浏览器控制台是否有 JavaScript 错误
+**Q: Cannot see file tree?**
 
-**Q: 下载文件失败？**
+A: Check if backend service started properly and if there are error messages in browser console.
 
-A:
-
-- 确保文件大小不超过10MB
-- 检查浏览器是否允许下载
-- 查看控制台是否有下载相关错误信息
-- 尝试使用不同浏览器
-
-**Q: 快捷键不工作？**
+**Q: Cannot create directories or files?**
 
 A:
 
-- 确保编辑器处于焦点状态
-- 检查是否有其他应用占用相同快捷键
-- Mac用户请使用Cmd键代替Ctrl键
-- 刷新页面重试
+- Ensure directory/filenames only contain letters, numbers, underscores, hyphens, and Chinese characters
+- Check if parent directory exists
+- Ensure `notes/` directory has write permissions
+- Check browser console for error messages
 
-**Q: 自动保存开关不起作用？**
+**Q: What to do if deleted files/directories cannot be recovered?**
+
+A: Delete operation is permanent and cannot be directly undone. Suggestions:
+
+- Regularly backup important files
+- Confirm carefully before deleting
+- Consider using version control system (like Git) to manage documents
+
+**Q: Right-click menu not appearing?**
 
 A:
 
-- 确保点击了标签页上的开关图标
-- 检查浏览器是否允许localStorage
-- 查看控制台是否有相关错误信息
-- 刷新页面后设置会自动恢复
+- Ensure right-click is in file tree area or tab area
+- Refresh page and try again
+- Check browser console for JavaScript errors
 
-**Q: 标签页状态没有恢复？**
+**Q: File download failed?**
 
 A:
 
-- 确保浏览器允许localStorage存储
-- 检查是否清除了浏览器数据
-- 重新打开文件后会自动保存状态
+- Ensure file size does not exceed 10MB
+- Check if browser allows downloads
+- Check console for download-related error messages
+- Try using a different browser
+
+**Q: Keyboard shortcuts not working?**
+
+A:
+
+- Ensure editor is in focus state
+- Check if other applications are using the same shortcuts
+- Mac users should use Cmd key instead of Ctrl key
+- Refresh page and try again
+
+**Q: Auto-save toggle not working?**
+
+A:
+
+- Ensure you clicked the toggle icon on the tab
+- Check if browser allows localStorage
+- Check console for related error messages
+- Settings will automatically restore after page refresh
+
+**Q: Tab states not restored?**
+
+A:
+
+- Ensure browser allows localStorage storage
+- Check if browser data has been cleared
+- Reopening files will automatically save state
 
 ## License
 
