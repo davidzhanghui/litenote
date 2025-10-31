@@ -59,7 +59,10 @@
               :name="tab.path"
             >
               <template #label>
-                <span class="tab-label">
+                <span 
+                  class="tab-label" 
+                  @contextmenu.prevent="handleTabContextMenu($event, tab)"
+                >
                   <el-icon v-if="tab.isMarkdown" class="tab-icon">
                     <Document />
                   </el-icon>
@@ -67,28 +70,69 @@
                     <Tickets />
                   </el-icon>
                   <span>{{ tab.name }}</span>
+                  <el-switch
+                    v-model="tab.autoUpdate"
+                    size="small"
+                    @change="handleAutoUpdateChange(tab)"
+                    class="auto-update-switch"
+                    :title="tab.autoUpdate ? '关闭自动更新' : '开启自动更新'"
+                  />
                 </span>
               </template>
             </el-tab-pane>
           </el-tabs>
         </div>
+        
+        <!-- 右键上下文菜单 -->
+        <ul
+          v-if="contextMenuVisible"
+          class="tab-context-menu"
+          :style="{ left: contextMenuX + 'px', top: contextMenuY + 'px' }"
+          @click.stop
+        >
+          <li @click="closeCurrentTab">
+            <el-icon><Close /></el-icon>
+            关闭当前标签
+          </li>
+          <li @click="closeOtherTabs">
+            <el-icon><Remove /></el-icon>
+            关闭其他标签
+          </li>
+          <li @click="closeAllTabs">
+            <el-icon><CloseBold /></el-icon>
+            关闭所有标签
+          </li>
+          <li @click="closeLeftTabs">
+            <el-icon><ArrowLeft /></el-icon>
+            关闭左侧标签
+          </li>
+          <li @click="closeRightTabs">
+            <el-icon><ArrowRight /></el-icon>
+            关闭右侧标签
+          </li>
+        </ul>
 
         <!-- 编辑器内容 -->
         <div class="editor-content">
           <template v-if="activeTabData">
+            <!-- Markdown编辑器 -->
             <MarkdownEditor
               v-if="activeTabData.isMarkdown"
               :key="activeTabData.path"
               :file-path="activeTabData.path"
               :content="activeTabData.content"
+              :auto-update="activeTabData.autoUpdate"
               @save="handleFileSave"
+              @close-tab="handleTabRemove"
             />
             <CodeEditor
               v-else
               :key="activeTabData.path"
               :file-path="activeTabData.path"
               :content="activeTabData.content"
+              :auto-update="activeTabData.autoUpdate"
               @save="handleFileSave"
+              @close-tab="handleTabRemove"
             />
           </template>
           <el-empty
@@ -111,11 +155,26 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Document, Refresh, Tickets, FolderOpened } from '@element-plus/icons-vue'
+import { Document, Refresh, Tickets, FolderOpened, Close, Remove, CloseBold, ArrowLeft, ArrowRight } from '@element-plus/icons-vue'
 import FileTree from './components/FileTree.vue'
 import MarkdownEditor from './components/MarkdownEditor.vue'
 import CodeEditor from './components/CodeEditor.vue'
 import { getFileTree, getFileContent, saveFileContent } from './api/files'
+
+// UI配置常量
+const UI_CONFIG = {
+  CONTEXT_MENU: {
+    MIN_WIDTH: 133,
+    PADDING: 6
+  },
+  ANIMATION: {
+    DURATION: 2000,
+    DEBOUNCE_DELAY: 300
+  },
+  FILE: {
+    MAX_DOWNLOAD_SIZE: 10 * 1024 * 1024 // 10MB
+  }
+}
 
 const fileTree = ref([])
 const loading = ref(false)
@@ -124,10 +183,91 @@ const loading = ref(false)
 const openedTabs = ref([])
 const activeTab = ref('')
 
+// 编辑器类型切换 (original: 原版, bytemd: ByteMD演示版, vditor: Vditor演示版, milkdown: Milkdown演示版)
+
+// 右键菜单状态
+const contextMenuVisible = ref(false)
+const contextMenuX = ref(0)
+const contextMenuY = ref(0)
+const contextMenuTab = ref(null)
+
+// localStorage 键名
+const STORAGE_KEYS = {
+  OPENED_TABS: 'markdown_editor_opened_tabs',
+  ACTIVE_TAB: 'markdown_editor_active_tab'
+}
+
 // 当前激活标签的数据
 const activeTabData = computed(() => {
   return openedTabs.value.find(tab => tab.path === activeTab.value)
 })
+
+// 防抖函数
+const debounce = (func, delay) => {
+  let timeoutId
+  return function (...args) {
+    clearTimeout(timeoutId)
+    timeoutId = setTimeout(() => func.apply(this, args), delay)
+  }
+}
+
+// 保存标签页状态到 localStorage
+const saveTabsState = debounce(() => {
+  try {
+    const tabsData = openedTabs.value.map(tab => ({
+      path: tab.path,
+      name: tab.name,
+      isMarkdown: tab.isMarkdown,
+      autoUpdate: tab.autoUpdate  // 保存自动更新状态
+      // 不保存 content，避免占用过多存储空间
+    }))
+    localStorage.setItem(STORAGE_KEYS.OPENED_TABS, JSON.stringify(tabsData))
+    if (activeTab.value) {
+      localStorage.setItem(STORAGE_KEYS.ACTIVE_TAB, activeTab.value)
+    }
+  } catch (error) {
+    console.warn('保存标签页状态失败:', error)
+  }
+}, UI_CONFIG.ANIMATION.DEBOUNCE_DELAY)
+
+// 从 localStorage 恢复标签页状态
+const restoreTabsState = async () => {
+  try {
+    const savedTabs = localStorage.getItem(STORAGE_KEYS.OPENED_TABS)
+    const savedActiveTab = localStorage.getItem(STORAGE_KEYS.ACTIVE_TAB)
+    
+    if (savedTabs) {
+      const tabsData = JSON.parse(savedTabs)
+      const restoredTabs = []
+      
+      // 重新加载每个标签页的内容
+      for (const tabData of tabsData) {
+        try {
+          const content = await getFileContent(tabData.path)
+          restoredTabs.push({
+            ...tabData,
+            content: content,
+            autoUpdate: tabData.autoUpdate !== undefined ? tabData.autoUpdate : true  // 确保autoUpdate属性存在
+          })
+        } catch (error) {
+          console.warn(`恢复标签页 ${tabData.path} 失败:`, error)
+          // 如果文件不存在，跳过该标签页
+        }
+      }
+      
+      openedTabs.value = restoredTabs
+      
+      // 恢复激活的标签页
+      if (savedActiveTab && restoredTabs.find(tab => tab.path === savedActiveTab)) {
+        activeTab.value = savedActiveTab
+      } else if (restoredTabs.length > 0) {
+        activeTab.value = restoredTabs[0].path
+      }
+    }
+  } catch (error) {
+    console.warn('恢复标签页状态失败:', error)
+  }
+}
 
 // 加载文件树
 const loadFileTree = async () => {
@@ -156,6 +296,7 @@ const handleFileSelect = async (filePath) => {
   if (existingTab) {
     // 已打开，直接切换到该标签
     activeTab.value = filePath
+    saveTabsState()
     return
   }
   
@@ -174,7 +315,8 @@ const handleFileSelect = async (filePath) => {
       path: filePath,
       name: fileName,
       content: content,
-      isMarkdown: isMarkdown
+      isMarkdown: isMarkdown,
+      autoUpdate: true  // 默认开启自动更新
     }
     
     // 添加到打开的标签列表
@@ -182,6 +324,9 @@ const handleFileSelect = async (filePath) => {
     
     // 激活新标签
     activeTab.value = filePath
+    
+    // 保存状态
+    saveTabsState()
     
   } catch (error) {
     ElMessage.error('打开文件失败: ' + error.message)
@@ -191,6 +336,7 @@ const handleFileSelect = async (filePath) => {
 // 处理标签点击
 const handleTabClick = (tab) => {
   activeTab.value = tab.props.name
+  saveTabsState()
 }
 
 // 处理标签关闭
@@ -214,6 +360,9 @@ const handleTabRemove = (targetPath) => {
   
   // 移除标签
   openedTabs.value.splice(targetIndex, 1)
+  
+  // 保存状态
+  saveTabsState()
 }
 
 // 处理文件保存
@@ -233,8 +382,92 @@ const handleFileSave = async (filePath, content) => {
   }
 }
 
-onMounted(() => {
-  loadFileTree()
+// 处理自动更新开关变化
+const handleAutoUpdateChange = (tab) => {
+  saveTabsState()
+  
+  ElMessage({
+    message: tab.autoUpdate ? '已开启自动更新' : '已关闭自动更新',
+    type: 'info',
+    duration: UI_CONFIG.ANIMATION.DURATION
+  })
+}
+
+// 获取编辑器描述
+
+// 右键菜单处理方法
+const handleTabContextMenu = (event, tab) => {
+  event.preventDefault()
+  contextMenuTab.value = tab
+  contextMenuX.value = event.clientX
+  contextMenuY.value = event.clientY
+  contextMenuVisible.value = true
+  
+  // 点击其他地方关闭菜单
+  document.addEventListener('click', hideContextMenu)
+}
+
+const hideContextMenu = () => {
+  contextMenuVisible.value = false
+  document.removeEventListener('click', hideContextMenu)
+}
+
+// 关闭当前标签
+const closeCurrentTab = () => {
+  if (contextMenuTab.value) {
+    handleTabRemove(contextMenuTab.value.path)
+    hideContextMenu()
+  }
+}
+
+// 关闭其他标签
+const closeOtherTabs = () => {
+  if (contextMenuTab.value) {
+    const targetPath = contextMenuTab.value.path
+    openedTabs.value = openedTabs.value.filter(tab => tab.path === targetPath)
+    activeTab.value = targetPath
+    saveTabsState()
+    hideContextMenu()
+  }
+}
+
+// 关闭所有标签
+const closeAllTabs = () => {
+  openedTabs.value = []
+  activeTab.value = ''
+  saveTabsState()
+  hideContextMenu()
+}
+
+// 关闭左侧标签
+const closeLeftTabs = () => {
+  if (contextMenuTab.value) {
+    const targetIndex = openedTabs.value.findIndex(tab => tab.path === contextMenuTab.value.path)
+    if (targetIndex > 0) {
+      openedTabs.value = openedTabs.value.slice(targetIndex)
+      saveTabsState()
+    }
+    hideContextMenu()
+  }
+}
+
+// 关闭右侧标签
+const closeRightTabs = () => {
+  if (contextMenuTab.value) {
+    const targetIndex = openedTabs.value.findIndex(tab => tab.path === contextMenuTab.value.path)
+    if (targetIndex < openedTabs.value.length - 1) {
+      openedTabs.value = openedTabs.value.slice(0, targetIndex + 1)
+      saveTabsState()
+    }
+    hideContextMenu()
+  }
+}
+
+onMounted(async () => {
+  // 先恢复标签页状态
+  await restoreTabsState()
+  // 再加载文件树
+  await loadFileTree()
 })
 </script>
 
@@ -455,6 +688,32 @@ onMounted(() => {
       .tab-icon {
         font-size: 16px;
       }
+
+      .auto-update-switch {
+        margin-left: 4px;
+        
+        :deep(.el-switch__core) {
+          min-width: 28px;
+          height: 14px;
+          border-radius: 7px;
+        }
+        
+        :deep(.el-switch__core::after) {
+          width: 10px;
+          height: 10px;
+          top: 2px;
+          left: 2px;
+        }
+        
+        &.is-checked :deep(.el-switch__core::after) {
+          left: calc(100% - 12px);
+        }
+        
+        :deep(.el-switch__action) {
+          width: 10px;
+          height: 10px;
+        }
+      }
     }
   }
 
@@ -462,6 +721,72 @@ onMounted(() => {
     flex: 1;
     overflow: hidden;
     position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+// 右键上下文菜单样式
+.tab-context-menu {
+  position: fixed;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.7) 0%, rgba(118, 75, 162, 0.7) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  box-shadow: 
+    0 8px 16px rgba(0, 0, 0, 0.15),
+    0 4px 8px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  z-index: 1000;
+  padding: v-bind('UI_CONFIG.CONTEXT_MENU.PADDING + "px"');
+  min-width: v-bind('UI_CONFIG.CONTEXT_MENU.MIN_WIDTH + "px"');
+  list-style: none;
+  margin: 0;
+  font-size: 12px;
+  backdrop-filter: blur(16px);
+  
+  li {
+    padding: 8px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255, 255, 255, 0.85);
+    border-radius: 8px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 400;
+    background: rgba(255, 255, 255, 0.08);
+    margin-bottom: 2px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.18);
+      color: rgba(255, 255, 255, 0.95);
+      transform: translateY(-1px) scale(1.01);
+      box-shadow: 
+        0 4px 8px rgba(0, 0, 0, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+    
+    &:active {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(0) scale(0.99);
+    }
+    
+    .el-icon {
+      font-size: 14px;
+      opacity: 0.8;
+      filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.1));
+    }
+    
+    &:hover .el-icon {
+      opacity: 0.95;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
+    }
   }
 }
 </style>

@@ -77,6 +77,10 @@ const props = defineProps({
   content: {
     type: String,
     default: ''
+  },
+  autoUpdate: {
+    type: Boolean,
+    default: true
   }
 })
 
@@ -219,22 +223,30 @@ const initEditor = async () => {
   }
 }
 
+// 计算属性：是否应该自动保存
+const shouldAutoSave = computed(() => {
+  return props.autoUpdate && hasUnsavedChanges.value
+})
+
 // 重置自动保存计时器
 const resetAutoSaveTimer = () => {
   if (autoSaveTimer) {
     clearTimeout(autoSaveTimer)
   }
 
-  autoSaveTimer = setTimeout(() => {
-    if (hasUnsavedChanges.value && editor) {
-      handleAutoSave()
-    }
-  }, AUTO_SAVE_INTERVAL)
+  // 只有在应该自动保存时才设置自动保存计时器
+  if (shouldAutoSave.value) {
+    autoSaveTimer = setTimeout(() => {
+      if (shouldAutoSave.value && editor) {
+        handleAutoSave()
+      }
+    }, AUTO_SAVE_INTERVAL)
+  }
 }
 
 // 自动保存
 const handleAutoSave = async () => {
-  if (!editor || !hasUnsavedChanges.value) return
+  if (!editor || !shouldAutoSave.value) return
 
   try {
     const content = editor.getValue()
@@ -308,18 +320,26 @@ const handleKeyDown = (e) => {
   // Ctrl+S 或 Cmd+S 保存
   if ((e.ctrlKey || e.metaKey) && e.key === 's') {
     e.preventDefault() // 阻止浏览器默认保存行为
-    if (props.filePath && editor) {
+    if (props.filePath) {
       handleSave()
     }
   }
+  // Ctrl+W 或 Cmd+W 关闭当前标签
+  if ((e.ctrlKey || e.metaKey) && e.key === 'w') {
+    e.preventDefault() // 阻止浏览器默认关闭行为
+    emit('close-tab', props.filePath)
+  }
+}
+
+// 编辑器容器键盘事件处理
+const handleEditorKeyDown = (e) => {
+  handleKeyDown(e)
 }
 
 onMounted(() => {
   if (props.filePath) {
     initEditor()
   }
-  // 监听键盘事件
-  document.addEventListener('keydown', handleKeyDown)
 })
 
 onBeforeUnmount(() => {
@@ -329,8 +349,6 @@ onBeforeUnmount(() => {
   if (editor) {
     editor.dispose()
   }
-  // 移除键盘事件监听
-  document.removeEventListener('keydown', handleKeyDown)
 })
 </script>
 

@@ -57,6 +57,14 @@
           >
             保存
           </el-button>
+          <el-button 
+            type="primary" 
+            :icon="Download"
+            @click="handleDownload"
+            title="下载源文件"
+          >
+            下载
+          </el-button>
         </div>
       </div>
 
@@ -71,6 +79,7 @@
             placeholder="请输入 Markdown 内容..."
             class="markdown-input"
             @input="handleInput"
+            @keydown="handleTextareaKeyDown"
           />
         </div>
 
@@ -97,15 +106,16 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
-import { 
+import {
   Document, 
   Edit, 
   View, 
   Connection, 
   DocumentChecked,
-  FolderOpened 
+  FolderOpened,
+  Download
 } from '@element-plus/icons-vue'
 import MarkdownIt from 'markdown-it'
 import hljs from 'highlight.js'
@@ -119,6 +129,10 @@ const props = defineProps({
   content: {
     type: String,
     default: ''
+  },
+  autoUpdate: {
+    type: Boolean,
+    default: true
   }
 })
 
@@ -160,22 +174,30 @@ const renderedHtml = computed(() => {
   return md.render(editContent.value)
 })
 
+// 计算属性：是否应该自动保存
+const shouldAutoSave = computed(() => {
+  return props.autoUpdate && hasUnsavedChanges.value
+})
+
 // 重置自动保存计时器
 const resetAutoSaveTimer = () => {
   if (autoSaveTimer) {
     clearTimeout(autoSaveTimer)
   }
 
-  autoSaveTimer = setTimeout(() => {
-    if (hasUnsavedChanges.value) {
-      handleAutoSave()
-    }
-  }, AUTO_SAVE_INTERVAL)
+  // 只有在应该自动保存时才设置自动保存计时器
+  if (shouldAutoSave.value) {
+    autoSaveTimer = setTimeout(() => {
+      if (shouldAutoSave.value) {
+        handleAutoSave()
+      }
+    }, AUTO_SAVE_INTERVAL)
+  }
 }
 
 // 自动保存
 const handleAutoSave = async () => {
-  if (!hasUnsavedChanges.value) return
+  if (!shouldAutoSave.value) return
 
   try {
     await new Promise((resolve) => {
@@ -238,6 +260,50 @@ const handleSave = async () => {
   }
 }
 
+// 下载源文件
+const handleDownload = () => {
+  if (!props.filePath) {
+    ElMessage.warning('未选择文件')
+    return
+  }
+
+  // 文件大小检查 (10MB限制)
+  const fileSize = new Blob([editContent.value]).size
+  const maxSize = 10 * 1024 * 1024 // 10MB
+  
+  if (fileSize > maxSize) {
+    ElMessage.warning(`文件过大 (${(fileSize / 1024 / 1024).toFixed(2)}MB)，建议分段下载`)
+    return
+  }
+
+  try {
+    // 创建Blob对象
+    const blob = new Blob([editContent.value], { type: 'text/plain;charset=utf-8' })
+    
+    // 创建下载链接
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    
+    // 从文件路径中提取文件名
+    const fileName = props.filePath.split('/').pop() || 'download.md'
+    link.download = fileName
+    
+    // 触发下载
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    
+    // 清理URL对象
+    window.URL.revokeObjectURL(url)
+    
+    ElMessage.success(`下载成功 (${(fileSize / 1024).toFixed(2)}KB)`)
+  } catch (error) {
+    console.error('下载失败:', error)
+    ElMessage.error('下载失败: ' + (error.message || '未知错误'))
+  }
+}
+
 // 处理快捷键
 const handleKeyDown = (e) => {
   // Ctrl+S 或 Cmd+S 保存
@@ -247,19 +313,45 @@ const handleKeyDown = (e) => {
       handleSave()
     }
   }
+  // Ctrl+W 或 Cmd+W 关闭当前标签
+  if ((e.ctrlKey || e.metaKey) && e.key === 'w') {
+    e.preventDefault() // 阻止浏览器默认关闭行为
+    emit('close-tab', props.filePath)
+  }
+}
+
+// 处理textarea中的Tab键
+const handleTextareaKeyDown = (e) => {
+  if (e.key === 'Tab') {
+    e.preventDefault() // 阻止默认Tab行为（切换焦点）
+    
+    const textarea = e.target
+    const start = textarea.selectionStart
+    const end = textarea.selectionEnd
+    const value = textarea.value
+    
+    // 插入2个空格作为缩进
+    const newValue = value.substring(0, start) + '  ' + value.substring(end)
+    
+    editContent.value = newValue
+    
+    // 恢复光标位置
+    nextTick(() => {
+      textarea.selectionStart = textarea.selectionEnd = start + 2
+    })
+  } else {
+    handleKeyDown(e)
+  }
 }
 
 onMounted(() => {
-  // 监听键盘事件
-  document.addEventListener('keydown', handleKeyDown)
+  // 不再需要全局键盘监听
 })
 
 onBeforeUnmount(() => {
   if (autoSaveTimer) {
     clearTimeout(autoSaveTimer)
   }
-  // 移除键盘事件监听
-  document.removeEventListener('keydown', handleKeyDown)
 })
 </script>
 
