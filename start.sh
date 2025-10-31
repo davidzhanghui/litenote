@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🚀 启动 Markdown 编辑器..."
+echo "🚀 启动多功能文件编辑器..."
 echo ""
 
 # 检查是否已安装依赖

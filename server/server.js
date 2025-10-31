@@ -10,8 +10,8 @@ const __dirname = path.dirname(__filename)
 const app = express()
 const PORT = 30001
 
-// Markdown 文件目录
-const MARKDOWNS_DIR = path.join(__dirname, '../markdowns')
+// 文件目录
+const NOTES_DIR = path.join(__dirname, '../notes')
 
 app.use(cors())
 app.use(express.json())
@@ -69,14 +69,14 @@ async function readDirectoryTree(dirPath, relativePath = '') {
 // API: 获取文件树
 app.get('/api/files', async (req, res) => {
   try {
-    // 确保 markdowns 目录存在
+    // 确保 notes 目录存在
     try {
-      await fs.access(MARKDOWNS_DIR)
+      await fs.access(NOTES_DIR)
     } catch {
-      await fs.mkdir(MARKDOWNS_DIR, { recursive: true })
+      await fs.mkdir(NOTES_DIR, { recursive: true })
     }
     
-    const tree = await readDirectoryTree(MARKDOWNS_DIR)
+    const tree = await readDirectoryTree(NOTES_DIR)
     res.json(tree)
   } catch (error) {
     console.error('获取文件树失败:', error)
@@ -94,8 +94,8 @@ app.get('/api/file', async (req, res) => {
     }
     
     // 防止路径遍历攻击
-    const fullPath = path.join(MARKDOWNS_DIR, filePath)
-    if (!fullPath.startsWith(MARKDOWNS_DIR)) {
+    const fullPath = path.join(NOTES_DIR, filePath)
+    if (!fullPath.startsWith(NOTES_DIR)) {
       return res.status(403).json({ error: '非法的文件路径' })
     }
     
@@ -117,8 +117,8 @@ app.post('/api/file', async (req, res) => {
     }
     
     // 防止路径遍历攻击
-    const fullPath = path.join(MARKDOWNS_DIR, filePath)
-    if (!fullPath.startsWith(MARKDOWNS_DIR)) {
+    const fullPath = path.join(NOTES_DIR, filePath)
+    if (!fullPath.startsWith(NOTES_DIR)) {
       return res.status(403).json({ error: '非法的文件路径' })
     }
     
@@ -161,10 +161,10 @@ app.post('/api/directory', async (req, res) => {
     }
     
     const newDirPath = dirPath ? `${dirPath}/${name}` : name
-    const fullPath = path.join(MARKDOWNS_DIR, newDirPath)
+    const fullPath = path.join(NOTES_DIR, newDirPath)
     
     // 防止路径遍历攻击
-    if (!fullPath.startsWith(MARKDOWNS_DIR)) {
+    if (!fullPath.startsWith(NOTES_DIR)) {
       return res.status(403).json({ error: '非法的目录路径' })
     }
     
@@ -198,12 +198,12 @@ app.put('/api/directory', async (req, res) => {
       return res.status(400).json({ error: '目录名只能包含字母、数字、下划线、中划线和中文' })
     }
     
-    const oldFullPath = path.join(MARKDOWNS_DIR, oldPath)
+    const oldFullPath = path.join(NOTES_DIR, oldPath)
     const parentDir = path.dirname(oldFullPath)
     const newFullPath = path.join(parentDir, newName)
     
     // 防止路径遍历攻击
-    if (!oldFullPath.startsWith(MARKDOWNS_DIR) || !newFullPath.startsWith(MARKDOWNS_DIR)) {
+    if (!oldFullPath.startsWith(NOTES_DIR) || !newFullPath.startsWith(NOTES_DIR)) {
       return res.status(403).json({ error: '非法的目录路径' })
     }
     
@@ -245,10 +245,10 @@ app.post('/api/create-file', async (req, res) => {
     
     const fileName = `${name}${extension}`
     const newFilePath = filePath ? `${filePath}/${fileName}` : fileName
-    const fullPath = path.join(MARKDOWNS_DIR, newFilePath)
+    const fullPath = path.join(NOTES_DIR, newFilePath)
     
     // 防止路径遍历攻击
-    if (!fullPath.startsWith(MARKDOWNS_DIR)) {
+    if (!fullPath.startsWith(NOTES_DIR)) {
       return res.status(403).json({ error: '非法的文件路径' })
     }
     
@@ -283,15 +283,15 @@ app.delete('/api/directory', async (req, res) => {
       return res.status(400).json({ error: '目录路径不能为空' })
     }
     
-    const fullPath = path.join(MARKDOWNS_DIR, dirPath)
+    const fullPath = path.join(NOTES_DIR, dirPath)
     
     // 防止路径遍历攻击
-    if (!fullPath.startsWith(MARKDOWNS_DIR)) {
+    if (!fullPath.startsWith(NOTES_DIR)) {
       return res.status(403).json({ error: '非法的目录路径' })
     }
     
     // 防止删除根目录
-    if (fullPath === MARKDOWNS_DIR) {
+    if (fullPath === NOTES_DIR) {
       return res.status(403).json({ error: '不能删除根目录' })
     }
     
@@ -324,10 +324,10 @@ app.delete('/api/file', async (req, res) => {
       return res.status(400).json({ error: '文件路径不能为空' })
     }
     
-    const fullPath = path.join(MARKDOWNS_DIR, filePath)
+    const fullPath = path.join(NOTES_DIR, filePath)
     
     // 防止路径遍历攻击
-    if (!fullPath.startsWith(MARKDOWNS_DIR)) {
+    if (!fullPath.startsWith(NOTES_DIR)) {
       return res.status(403).json({ error: '非法的文件路径' })
     }
     
@@ -360,12 +360,12 @@ app.put('/api/file-rename', async (req, res) => {
       return res.status(400).json({ error: '路径和新名称不能为空' })
     }
     
-    const oldFullPath = path.join(MARKDOWNS_DIR, oldPath)
+    const oldFullPath = path.join(NOTES_DIR, oldPath)
     const parentDir = path.dirname(oldFullPath)
     const newFullPath = path.join(parentDir, newName)
     
     // 防止路径遍历攻击
-    if (!oldFullPath.startsWith(MARKDOWNS_DIR) || !newFullPath.startsWith(MARKDOWNS_DIR)) {
+    if (!oldFullPath.startsWith(NOTES_DIR) || !newFullPath.startsWith(NOTES_DIR)) {
       return res.status(403).json({ error: '非法的文件路径' })
     }
     
@@ -393,5 +393,5 @@ app.get('/api/supported-extensions', (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`服务器运行在 http://localhost:${PORT}`)
-  console.log(`Markdown 文件目录: ${MARKDOWNS_DIR}`)
+  console.log(`文件目录: ${NOTES_DIR}`)
 })
